@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ประเมินอิงสถานการณ์: โดเมนและเรนจ์ของฟังก์ชัน (ม.4)</title>
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-hover: #115e59;
+      --primary-soft: #f0fdfa;
+      --primary-border: #99f6e4;
+      --accent: #0369a1;
+      --accent-soft: #f0f9ff;
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface-muted: #f8fafc;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --border-light: #e2e8f0;
+      --success: #15803d;
+      --success-soft: #f0fdf4;
+      --success-border: #bbf7d0;
+      --warning: #b45309;
+      --warning-soft: #fffbeb;
+      --warning-border: #fde68a;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --danger-border: #fecaca;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.14);
+      --radius: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, "Noto Sans Thai", "Sarabun", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+      color: #ffffff;
+      padding: 1rem 1.25rem;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .brand-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.18);
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      width: fit-content;
+    }
+
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-credit {
+      font-size: 0.8rem;
+      opacity: 0.92;
+    }
+
+    .btn-teacher {
+      background: #ffffff;
+      color: var(--primary);
+      border: 2px solid transparent;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .btn-teacher:hover {
+      background: var(--primary-soft);
+      transform: translateY(-1px);
+    }
+
+    .btn-teacher:active {
+      transform: translateY(0);
+    }
+
+    /* Main Container */
+    .main-container {
+      width: 100%;
+      max-width: 960px;
+      margin: 1.25rem auto;
+      padding: 0 1rem;
+      flex: 1;
+    }
+
+    /* Banner Notification (No alert/confirm) */
+    .banner {
+      display: none;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 1rem;
+      font-size: 0.94rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .banner.show {
+      display: flex;
+    }
+
+    .banner.info {
+      background: var(--accent-soft);
+      border-color: #bae6fd;
+      color: var(--accent);
+    }
+
+    .banner.warning {
+      background: var(--warning-soft);
+      border-color: var(--warning-border);
+      color: var(--warning);
+    }
+
+    .banner.danger {
+      background: var(--danger-soft);
+      border-color: var(--danger-border);
+      color: var(--danger);
+    }
+
+    .banner.success {
+      background: var(--success-soft);
+      border-color: var(--success-border);
+      color: var(--success);
+    }
+
+    .banner-close {
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0.2rem 0.45rem;
+      border-radius: 6px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Info Grid on Start Screen */
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .meta-box {
+      background: var(--surface-muted);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+    }
+
+    .meta-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+
+    .meta-value {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .objective-box {
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.15rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .objective-box strong {
+      color: var(--primary);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Form Controls */
+    .entry-form {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 1rem;
+      background: var(--surface-muted);
+      padding: 1.25rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light);
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      flex: 1;
+      min-width: 210px;
+    }
+
+    .field-label {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .text-input, .number-input, .textarea-input {
+      width: 100%;
+      padding: 0.72rem 0.9rem;
+      font-size: 1rem;
+      font-family: inherit;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      color: var(--text);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .text-input:focus, .number-input:focus, .textarea-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+    }
+
+    .textarea-input {
+      min-height: 135px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.35rem;
+      font-size: 0.96rem;
+      font-weight: 700;
+      font-family: inherit;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background-color 0.15s ease, transform 0.12s ease, opacity 0.15s ease;
+      min-height: 46px;
+    }
+
+    .btn:active {
+      transform: scale(0.99);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #ffffff;
+    }
+
+    .btn-success:hover {
+      background: #166534;
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary-soft);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* Quiz Status Bar */
+    .status-bar {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .status-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .student-badge {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid var(--primary-border);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .timer-badge {
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+
+    .timer-badge.urgent {
+      background: var(--danger-soft);
+      border-color: var(--danger-border);
+      color: var(--danger);
+    }
+
+    .progress-wrap {
+      margin-bottom: 0.85rem;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0f766e, #14b8a6);
+      width: 20%;
+      transition: width 0.25s ease;
+    }
+
+    .nav-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .nav-pill {
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav-pill.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .nav-pill.answered:not(.active) {
+      border-color: var(--primary-border);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    /* Question Card */
+    .q-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .q-number {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .q-type-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+    }
+
+    .scenario-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 1rem 1.15rem;
+      margin-bottom: 1.15rem;
+    }
+
+    .scenario-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.35rem;
+    }
+
+    .math-display {
+      display: inline-block;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.45rem 0.85rem;
+      margin: 0.5rem 0;
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 1.12rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      margin: 0 0.25rem;
+      font-size: 0.95em;
+    }
+
+    .frac-num {
+      border-bottom: 1.5px solid currentColor;
+      padding: 0 0.3rem 0.1rem;
+      line-height: 1.2;
+    }
+
+    .frac-den {
+      padding: 0.1rem 0.3rem 0;
+      line-height: 1.2;
+    }
+
+    .prompt-box {
+      font-size: 1.02rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    /* Dual Numeric Input Grid */
+    .dual-input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .input-card {
+      background: var(--surface-muted);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+    }
+
+    .input-card label {
+      display: block;
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 0.45rem;
+      color: var(--text);
+    }
+
+    .input-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    /* MCQ Options */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.9rem 1rem;
+      border: 2px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .option-item:hover {
+      border-color: var(--primary-border);
+      background: var(--surface-muted);
+    }
+
+    .option-item.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .option-item input[type="radio"] {
+      width: 19px;
+      height: 19px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .option-letter {
+      font-weight: 800;
+      color: var(--primary);
+      min-width: 1.5rem;
+    }
+
+    /* Quiz Footer Controls */
+    .quiz-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-light);
+    }
+
+    /* Inline Confirm Submit Box */
+    .inline-confirm {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--warning-soft);
+      border: 1px solid var(--warning-border);
+      border-radius: var(--radius-sm);
+    }
+
+    .inline-confirm.show {
+      display: block;
+    }
+
+    .inline-confirm-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+    }
+
+    /* Results Screen */
+    .score-hero {
+      background: linear-gradient(135deg, #0f766e 0%, #0369a1 100%);
+      color: #ffffff;
+      border-radius: var(--radius);
+      padding: 1.75rem 1.5rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .score-big {
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 0.4rem 0;
+    }
+
+    .score-sub {
+      font-size: 0.96rem;
+      opacity: 0.94;
+    }
+
+    .review-card {
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 1.25rem;
+      margin-bottom: 1.15rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .review-card.correct {
+      border-left: 5px solid var(--success);
+    }
+
+    .review-card.incorrect {
+      border-left: 5px solid var(--danger);
+    }
+
+    .review-card.rubric-mode {
+      border-left: 5px solid var(--accent);
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .badge-correct {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+
+    .badge-incorrect {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .badge-rubric {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .answer-compare {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+      margin: 0.85rem 0;
+    }
+
+    .compare-box {
+      background: var(--surface-muted);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 0.9rem;
+      font-size: 0.92rem;
+    }
+
+    .explanation-box {
+      background: #f0fdfa;
+      border: 1px solid #ccfbf1;
+      border-radius: var(--radius-sm);
+      padding: 0.95rem 1rem;
+      font-size: 0.93rem;
+      margin-top: 0.75rem;
+    }
+
+    .explanation-title {
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.3rem;
+    }
+
+    /* Rubric Table */
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    table.rubric-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.87rem;
+      min-width: 620px;
+      background: #ffffff;
+    }
+
+    .rubric-table th, .rubric-table td {
+      border: 1px solid var(--border-light);
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .rubric-table th {
+      background: var(--surface-muted);
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .rubric-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
+      align-items: center;
+    }
+
+    .rubric-btn {
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: #ffffff;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .rubric-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .student-essay-preview {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem;
+      white-space: pre-wrap;
+      font-size: 0.92rem;
+      margin-top: 0.35rem;
+      color: var(--text);
+    }
+
+    /* Teacher Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.58);
+      z-index: 60;
+      padding: 1rem;
+      overflow-y: auto;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-panel {
+      background: var(--surface);
+      width: 100%;
+      max-width: 880px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      margin: 1.5rem auto;
+      overflow: hidden;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-header {
+      background: #1e293b;
+      color: #ffffff;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .modal-body {
+      padding: 1.25rem;
+      max-height: 78vh;
+      overflow-y: auto;
+    }
+
+    .teacher-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--surface-muted);
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light);
+      margin-bottom: 1rem;
+    }
+
+    .stepper-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-step {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-step:hover {
+      background: var(--primary-soft);
+    }
+
+    .uniqueness-panel {
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      border-radius: var(--radius-sm);
+      padding: 0.95rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .client-disclaimer {
+      background: var(--warning-soft);
+      border: 1px solid var(--warning-border);
+      color: var(--warning);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      font-size: 0.88rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Footer */
+    .app-footer {
+      background: #ffffff;
+      border-top: 1px solid var(--border-light);
+      padding: 1rem 1.25rem;
+      text-align: center;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-top: 2rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .brand-title { font-size: 1.05rem; }
+      .card { padding: 1.1rem; }
+      .score-big { font-size: 2.1rem; }
+      .quiz-actions .btn { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <span class="brand-tag">คณิตศาสตร์เพิ่มเติม ม.4 • เรื่อง ฟังก์ชัน</span>
+        <h1 class="brand-title">ประเมินอิงสถานการณ์: โดเมนและเรนจ์ของฟังก์ชัน</h1>
+        <div class="brand-credit">ผู้สร้าง: ณัฐดนัย ใจพล | โรงเรียน: ปางมะผ้าพิทยาสรรพ์</div>
+      </div>
+      <button type="button" id="openTeacherBtn" class="btn-teacher" aria-label="เปิดโหมดครู">
+        <span>โหมดครู</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="main-container">
+    <!-- Polite Inline Notification Banner -->
+    <div id="bannerArea" class="banner" role="alert">
+      <span id="bannerText"></span>
+      <button type="button" id="closeBannerBtn" class="banner-close" aria-label="ปิดการแจ้งเตือน">&times;</button>
+    </div>
+
+    <!-- VIEW 1: Student Entry -->
+    <section id="startScreen" class="card">
+      <h2 class="section-title">ยินดีต้อนรับสู่กิจกรรมประเมินผลอิงสถานการณ์</h2>
+      <p class="section-subtitle">
+        ระบบจะสร้างชุดโจทย์สถานการณ์ประยุกต์เฉพาะตัวตามเลขที่นักเรียน (1–40) โดยใช้ตัวสุ่มแบบกำหนดค่าได้ (Deterministic Seed) เพื่อให้โจทย์มีความท้าทายและมาตรฐานที่เท่าเทียมกันทุกคน
+      </p>
+
+      <div class="objective-box">
+        <strong>จุดประสงค์การเรียนรู้</strong>
+        นักเรียนสามารถวิเคราะห์สถานการณ์และหาโดเมน (Domain) และเรนจ์ (Range) ของฟังก์ชันเชิงเส้น ฟังก์ชันกำลังสอง ฟังก์ชันตรรกยะ และฟังก์ชันติดกรณฑ์ได้อย่างถูกต้อง
+      </div>
+
+      <div class="meta-grid">
+        <div class="meta-box">
+          <div class="meta-label">จำนวนข้อสอบ</div>
+          <div class="meta-value">5 ข้อ (ปรนัย เติมคำ และวิเคราะห์)</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-label">เวลาในการทำกิจกรรม</div>
+          <div class="meta-value">10 นาที (นับถอยหลัง)</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-label">ระดับความยาก</div>
+          <div class="meta-value">ท้าทาย / ประยุกต์</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-label">รูปแบบการเรียนรู้</div>
+          <div class="meta-value">โหมดฝึกซ้อม (ทำซ้ำได้ พร้อมเฉลย)</div>
+        </div>
+      </div>
+
+      <form id="startForm" class="entry-form" novalidate>
+        <div class="field-group">
+          <label for="studentNumberInput" class="field-label">กรอกเลขที่นักเรียน (ตั้งแต่ 1 ถึง 40)</label>
+          <input
+            type="number"
+            id="studentNumberInput"
+            class="number-input"
+            min="1"
+            max="40"
+            step="1"
+            inputmode="numeric"
+            placeholder="เช่น 12"
+            required
+          >
+        </div>
+        <button type="submit" id="startBtn" class="btn btn-primary">เริ่มทำกิจกรรม</button>
+      </form>
+    </section>
+
+    <!-- VIEW 2: Active Quiz -->
+    <section id="quizScreen" class="hidden">
+      <div class="status-bar">
+        <div class="status-top">
+          <span id="activeStudentBadge" class="student-badge">เลขที่ -</span>
+          <span id="timerDisplay" class="timer-badge">เวลาคงเหลือ 10:00</span>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="progressLabel">ข้อที่ 1 จาก 5</span>
+            <span id="answeredCountLabel">ตอบแล้ว 0 / 5 ข้อ</span>
+          </div>
+          <div class="progress-track">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+        </div>
+
+        <div id="navPills" class="nav-pills" aria-label="ตัวเลือกข้ามข้อ"></div>
+      </div>
+
+      <div id="questionCard" class="card"></div>
+    </section>
+
+    <!-- VIEW 3: Results & Practice Feedback -->
+    <section id="resultScreen" class="hidden">
+      <div class="score-hero">
+        <div id="resultStudentLabel" class="score-sub">ผลการประเมินของนักเรียนเลขที่ -</div>
+        <div id="totalScoreDisplay" class="score-big">0 / 100 คะแนน</div>
+        <div id="scoreBreakdownDisplay" class="score-sub">คะแนนอัตโนมัติ (ข้อ 1–4): 0/80 | คะแนนเกณฑ์ Rubric (ข้อ 5): 0/20</div>
+      </div>
+
+      <div class="card" style="display:flex; flex-wrap:wrap; gap:0.75rem; justify-content:space-between; align-items:center;">
+        <div>
+          <strong>โหมดฝึกซ้อม:</strong> ศึกษาคำอธิบายเหตุผลและแนวคำตอบด้านล่าง จากนั้นสามารถกดลองทำซ้ำได้ทันที
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
+          <button type="button" id="retrySameBtn" class="btn btn-primary">ฝึกซ้อมอีกครั้ง (ทำซ้ำ)</button>
+          <button type="button" id="changeStudentBtn" class="btn btn-outline">เปลี่ยนเลขที่นักเรียน</button>
+        </div>
+      </div>
+
+      <div id="reviewContainer"></div>
+    </section>
+  </main>
+
+  <!-- Teacher Mode Modal -->
+  <div id="teacherModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="teacherModalTitle">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="teacherModalTitle" style="font-size:1.1rem; font-weight:700;">โหมดครู: ตรวจสอบคลังโจทย์เฉพาะบุคคลและเฉลย (เลขที่ 1–40)</h2>
+        <button type="button" id="closeTeacherBtn" class="btn-secondary" style="padding:0.4rem 0.85rem; border-radius:8px; font-weight:700; cursor:pointer; border:none;">ปิดหน้าต่าง</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="client-disclaimer">
+          <strong>หมายเหตุสำคัญสำหรับครูผู้สอน:</strong> เว็บแอปพลิเคชันนี้ทำงานบนฝั่งเบราว์เซอร์ (Client-Side) ทั้งหมด จึงไม่สามารถซ่อนเฉลยหรือสูตรคำนวณจากโค้ดต้นฉบับในเบราว์เซอร์ได้ 100% โปรดตรวจสอบความถูกต้องของโจทย์และเฉลยก่อนนำไปใช้จริงในชั้นเรียน
+        </div>
+
+        <div id="uniquenessBox" class="uniqueness-panel"></div>
+
+        <div class="teacher-controls">
+          <label for="teacherStudentInput" style="font-weight:700;">เลือกดูชุดโจทย์ของเลขที่:</label>
+          <div class="stepper-group">
+            <button type="button" id="teacherPrevStudent" class="btn-step" aria-label="เลขที่ก่อนหน้า">-</button>
+            <input
+              type="number"
+              id="teacherStudentInput"
+              class="number-input"
+              style="width:90px; text-align:center; padding:0.45rem;"
+              min="1"
+              max="40"
+              value="1"
+            >
+            <button type="button" id="teacherNextStudent" class="btn-step" aria-label="เลขที่ถัดไป">+</button>
+          </div>
+          <span style="font-size:0.86rem; color:var(--text-muted);">(ช่วงเลขที่ 1 – 40)</span>
+        </div>
+
+        <div id="teacherPreviewContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    ผู้สร้าง: ณัฐดนัย ใจพล | โรงเรียน: ปางมะผ้าพิทยาสรรพ์ • รายวิชาคณิตศาสตร์เพิ่มเติม ระดับชั้นมัธยมศึกษาปีที่ 4 (เรื่อง ฟังก์ชัน)
+  </footer>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* =====================================================================
+         1. DETERMINISTIC PRNG (Mulberry32) & MATH HELPERS
+         ===================================================================== */
+      function mulberry32(seed) {
+        let a = seed >>> 0;
+        return function () {
+          a |= 0;
+          a = (a + 0x6D2B79F5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function createQuestionRng(studentNumber, questionIndex) {
+        const seed = ((studentNumber * 2654435761) ^ ((questionIndex + 1) * 1597334677)) >>> 0;
+        return mulberry32(seed);
+      }
+
+      function pickFrom(rng, arr) {
+        const idx = Math.floor(rng() * arr.length);
+        return arr[idx];
+      }
+
+      function shuffleDeterministic(rng, arr) {
+        const copy = arr.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          const tmp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = tmp;
+        }
+        return copy;
+      }
+
+      function gcd(a, b) {
+        let x = Math.abs(Math.round(a));
+        let y = Math.abs(Math.round(b));
+        while (y !== 0) {
+          const t = y;
+          y = x % y;
+          x = t;
+        }
+        return x === 0 ? 1 : x;
+      }
+
+      function formatFractionString(num, den) {
+        const g = gcd(num, den);
+        const n = num / g;
+        const d = den / g;
+        if (d === 1) return String(n);
+        return n + "/" + d;
+      }
+
+      function roundToTwo(val) {
+        return Math.round((val + Number.EPSILON) * 100) / 100;
+      }
+
+      /* =====================================================================
+         2. PROBLEM BANK GENERATOR (STRATEGY A: NUMERICAL VARIATION)
+         ===================================================================== */
+      function generateAssessmentForStudent(studentNumber) {
+        const questions = [];
+
+        /* -------------------------------------------------------------------
+           ข้อที่ 1: ฟังก์ชันเชิงเส้นประยุกต์ในสถานการณ์จริง (เติมตัวเลข 2 ช่อง)
+           ------------------------------------------------------------------- */
+        (function buildQ1() {
+          const rng = createQuestionRng(studentNumber, 0);
+          const unitCost = pickFrom(rng, [15, 20, 25, 30, 35, 40, 45, 50]);
+          const fixedCost = pickFrom(rng, [150, 200, 250, 300, 350, 400, 450, 500]);
+          const minUnits = pickFrom(rng, [8, 10, 12, 14, 15, 16, 18, 20]);
+          const span = pickFrom(rng, [12, 15, 16, 18, 20, 24, 25, 30]);
+          const maxUnits = minUnits + span;
+          const minBudget = unitCost * minUnits + fixedCost;
+          const maxBudget = unitCost * maxUnits + fixedCost;
+
+          questions.push({
+            id: 1,
+            type: "dual-numeric",
+            typeLabel: "เติมคำตอบเชิงตัวเลข (20 คะแนน)",
+            signature: `${unitCost}-${fixedCost}-${minUnits}-${maxUnits}`,
+            scenario:
+              `ศูนย์เรียนรู้เกษตรอินทรีย์ดอยปางมะผ้า วางแผนผลิตชุดปุ๋ยหมักชีวภาพเพื่อส่งเสริมเกษตรกร โดยมีต้นทุนคงที่ในการเตรียมโรงเรือน ${fixedCost} บาท ` +
+              `และต้นทุนวัตถุดิบชุดละ ${unitCost} บาท คณะกรรมการกำหนดเงื่อนไขว่าต้องผลิตอย่างน้อย ${minUnits} ชุด และมีงบประมาณสนับสนุนสูงสุดไม่เกิน ${maxBudget} บาท ` +
+              `กำหนดให้ฟังก์ชันต้นทุนรวม (บาท) เมื่อผลิตปุ๋ยหมักจำนวน x ชุด คือ f(x) = ${unitCost}x + ${fixedCost} (พิจารณาแบบจำลองต่อเนื่องบนช่วงจำนวนชุดที่เป็นไปได้)`,
+            formulaText: `f(x) = ${unitCost}x + ${fixedCost}  โดยที่  x ≥ ${minUnits}  และ  f(x) ≤ ${maxBudget}`,
+            prompt:
+              "จงหาขอบเขตของโดเมนและเรนจ์ในบริบทสถานการณ์นี้ (ตอบเป็นจำนวนเต็ม)",
+            fields: [
+              {
+                key: "a",
+                label: "1) จำนวนชุดปุ๋ยหมักมากที่สุดที่ผลิตได้ (ค่าสูงสุดของโดเมน Df)",
+                placeholder: "กรอกจำนวนเต็ม",
+                unit: "ชุด",
+                correct: maxUnits
+              },
+              {
+                key: "b",
+                label: "2) ต้นทุนรวมต่ำที่สุดตามเงื่อนไข (ค่าต่ำสุดของเรนจ์ Rf)",
+                placeholder: "กรอกจำนวนเต็ม",
+                unit: "บาท",
+                correct: minBudget
+              }
+            ],
+            tolerance: 0,
+            correctSummary: `ค่าสูงสุดของโดเมน = ${maxUnits} ชุด, ค่าต่ำสุดของเรนจ์ = ${minBudget} บาท (Df = [${minUnits}, ${maxUnits}], Rf = [${minBudget}, ${maxBudget}])`,
+            explanation:
+              `จากเงื่อนไขงบประมาณสูงสุดไม่เกิน ${maxBudget} บาท จะได้อสมการ ${unitCost}x + ${fixedCost} ≤ ${maxBudget} ` +
+              `⇒ ${unitCost}x ≤ ${maxBudget - fixedCost} ⇒ x ≤ ${maxUnits} เมื่อรวมกับเงื่อนไขผลิตอย่างน้อย ${minUnits} ชุด ` +
+              `จะได้โดเมนในสถานการณ์คือ Df = [${minUnits}, ${maxUnits}] ดังนั้นจำนวนชุดมากที่สุดคือ ${maxUnits} ชุด ` +
+              `และเนื่องจาก f เป็นฟังก์ชันเพิ่ม ค่าต่ำสุดของเรนจ์จึงเกิดที่ x = ${minUnits} คือ f(${minUnits}) = ${unitCost}(${minUnits}) + ${fixedCost} = ${minBudget} บาท ` +
+              `นั่นคือ Rf = [${minBudget}, ${maxBudget}]`
+          });
+        })();
+
+        /* -------------------------------------------------------------------
+           ข้อที่ 2: ฟังก์ชันพหุนามกำลังสองจำกัดโดเมน (ปรนัย 4 ตัวเลือก)
+           ------------------------------------------------------------------- */
+        (function buildQ2() {
+          const rng = createQuestionRng(studentNumber, 1);
+          const a = pickFrom(rng, [1, 2, 3]);
+          const d = pickFrom(rng, [2, 3]);
+          const k = a * d * d;
+          let h = pickFrom(rng, [4, 5, 6, 7, 8, 9]);
+          if (h === k) {
+            h += 1;
+          }
+          const xLeft = h - d;
+          const xRight = h + d;
+          const coeffStr = a === 1 ? "-" : `-${a}`;
+          const funcExpr = `f(x) = ${coeffStr}(x - ${h})² + ${k}`;
+
+          const correctText = `Df = [${xLeft}, ${xRight}] และ Rf = [0, ${k}]`;
+          const rawOptions = [
+            { text: correctText, isCorrect: true },
+            { text: `Df = [0, ${k}] และ Rf = [${xLeft}, ${xRight}]`, isCorrect: false },
+            { text: `Df = [0, ${xRight}] และ Rf = [0, ${h}]`, isCorrect: false },
+            { text: `Df = [${xLeft}, ${xRight}] และ Rf = (-∞, ${k}]`, isCorrect: false }
+          ];
+
+          const options = shuffleDeterministic(rng, rawOptions);
+          const correctIndex = options.findIndex((opt) => opt.isCorrect);
+
+          questions.push({
+            id: 2,
+            type: "mcq",
+            typeLabel: "ปรนัย 4 ตัวเลือก (20 คะแนน)",
+            signature: `${a}-${h}-${d}`,
+            scenario:
+              `ในการทดสอบระบบหัวฉีดน้ำแรงดันสูงสำหรับแปลงสตรอว์เบอร์รีบนพื้นที่สูง ระดับความสูงของสายน้ำ y (เมตร) จากพื้นดิน ณ ระยะห่างแนวนอน x (เมตร) ` +
+              `จากจุดอ้างอิง เป็นไปตามฟังก์ชันกำลังสอง ${funcExpr} โดยสายน้ำเริ่มพุ่งขึ้นจากระดับพื้นดิน (y = 0) และตกลงสู่พื้นดินอีกครั้ง (y = 0)`,
+            formulaText: `${funcExpr}  เมื่อระดับน้ำอยู่เหนือหรือสัมผัสพื้นดิน (y ≥ 0)`,
+            prompt: "ข้อใดระบุโดเมน (Df) และเรนจ์ (Rf) ของความสูงสายน้ำในสถานการณ์นี้ได้ถูกต้อง",
+            options: options,
+            correctIndex: correctIndex,
+            correctSummary: correctText,
+            explanation:
+              `เนื่องจากสายน้ำต้องอยู่เหนือหรือสัมผัสพื้นดิน (y ≥ 0) จะได้อสมการ ${coeffStr}(x - ${h})² + ${k} ≥ 0 ` +
+              `⇒ (x - ${h})² ≤ ${d * d} ⇒ -${d} ≤ x - ${h} ≤ ${d} ⇒ ${xLeft} ≤ x ≤ ${xRight} ดังนั้น Df = [${xLeft}, ${xRight}] ` +
+              `และกราฟเป็นพาราโบลาคว่ำมีจุดยอดที่ (${h}, ${k}) ค่าสูงสุดของ y คือ ${k} เมตร และค่าต่ำสุดที่ระดับพื้นดินคือ 0 เมตร จึงได้ Rf = [0, ${k}]`
+          });
+        })();
+
+        /* -------------------------------------------------------------------
+           ข้อที่ 3: ฟังก์ชันตรรกยะและเส้นกำกับ (เติมตัวเลข 2 ช่อง)
+           ------------------------------------------------------------------- */
+        (function buildQ3() {
+          const rng = createQuestionRng(studentNumber, 2);
+          const c = pickFrom(rng, [2, 3, 4, 5, 6, 7, 8]);
+          const m = pickFrom(rng, [3, 4, 5, 6, 7, 8, 9, 10]);
+          let r = pickFrom(rng, [4, 5, 6, 8, 9, 10, 11]);
+          let b = r - m * c;
+          if (b === 0) {
+            r += 1;
+            b = r - m * c;
+          }
+          const numStr = b > 0 ? `${m}x + ${b}` : `${m}x - ${Math.abs(b)}`;
+
+          questions.push({
+            id: 3,
+            type: "dual-numeric",
+            typeLabel: "เติมคำตอบเชิงตัวเลข (20 คะแนน)",
+            signature: `${c}-${m}-${r}`,
+            scenario:
+              `ฝ่ายควบคุมคุณภาพระบบประปาหมู่บ้าน สร้างแบบจำลองทางคณิตศาสตร์เพื่อวิเคราะห์อัตราส่วนสารปรับสภาพน้ำด้วยฟังก์ชันตรรกยะ ` +
+              `f(x) = (${numStr}) / (x - ${c}) เมื่อพิจารณาในเชิงพีชคณิตบนเซตของจำนวนจริง (x ∈ ℝ)`,
+            formulaText: `f(x) = (${numStr}) / (x - ${c})`,
+            prompt: "จงระบุจำนวนจริงที่ไม่สามารถเป็นสมาชิกของโดเมนและเรนจ์ของฟังก์ชัน f ได้ (ตอบเป็นจำนวนเต็ม)",
+            fields: [
+              {
+                key: "a",
+                label: "1) จำนวนจริงเพียงค่าเดียวที่ไม่อยู่ในโดเมนของ f (x ≠ ...)",
+                placeholder: "กรอกจำนวนเต็ม",
+                unit: "",
+                correct: c
+              },
+              {
+                key: "b",
+                label: "2) จำนวนจริงเพียงค่าเดียวที่ไม่อยู่ในเรนจ์ของ f (y ≠ ...)",
+                placeholder: "กรอกจำนวนเต็ม",
+                unit: "",
+                correct: m
+              }
+            ],
+            tolerance: 0,
+            correctSummary: `ค่าที่ไม่อยู่ในโดเมนคือ x = ${c} (Df = ℝ - {${c}}), ค่าที่ไม่อยู่ในเรนจ์คือ y = ${m} (Rf = ℝ - {${m}})`,
+            explanation:
+              `1) ตัวส่วนต้องไม่เป็นศูนย์: x - ${c} ≠ 0 ⇒ x ≠ ${c} ดังนั้น Df = ℝ - {${c}} ` +
+              `2) จัดรูปสมการ y = (${numStr}) / (x - ${c}) ⇒ y(x - ${c}) = ${numStr} ⇒ x(y - ${m}) = ${c}y ${b >= 0 ? "+ " + b : "- " + Math.abs(b)} ` +
+              `⇒ x = (${c}y ${b >= 0 ? "+ " + b : "- " + Math.abs(b)}) / (y - ${m}) จะเห็นว่าตัวส่วน y - ${m} ≠ 0 ⇒ y ≠ ${m} ` +
+              `(และเมื่อจัดรูปหารยาวจะได้ f(x) = ${m} + ${r}/(x - ${c}) ซึ่งไม่มีวันเท่ากับ ${m}) ดังนั้น Rf = ℝ - {${m}}`
+          });
+        })();
+
+        /* -------------------------------------------------------------------
+           ข้อที่ 4: ฟังก์ชันติดกรณฑ์ที่สอง (ปรนัย 4 ตัวเลือก)
+           ------------------------------------------------------------------- */
+        (function buildQ4() {
+          const rng = createQuestionRng(studentNumber, 3);
+          const p = pickFrom(rng, [2, 3, 4, 5]);
+          const x0 = pickFrom(rng, [2, 3, 4, 5, 6, 7]);
+          const q = p * x0;
+          let v = pickFrom(rng, [1, 2, 3, 4, 5, 6, 8]);
+          if (v === x0) {
+            v += 1;
+          }
+
+          const correctText = `Dg = [${x0}, ∞) และ Rg = [${v}, ∞)`;
+          const rawOptions = [
+            { text: correctText, isCorrect: true },
+            { text: `Dg = [${q}, ∞) และ Rg = [${v}, ∞)`, isCorrect: false },
+            { text: `Dg = [${v}, ∞) และ Rg = [${x0}, ∞)`, isCorrect: false },
+            { text: `Dg = (${x0}, ∞) และ Rg = [0, ∞)`, isCorrect: false }
+          ];
+
+          const options = shuffleDeterministic(rng, rawOptions);
+          const correctIndex = options.findIndex((opt) => opt.isCorrect);
+
+          questions.push({
+            id: 4,
+            type: "mcq",
+            typeLabel: "ปรนัย 4 ตัวเลือก (20 คะแนน)",
+            signature: `${p}-${x0}-${v}`,
+            scenario:
+              `ในห้องปฏิบัติการฟิสิกส์ นักเรียนสร้างแบบจำลองความสัมพันธ์ระหว่างตัวแปรควบคุมอุณหภูมิ x กับค่าสัญญาณตอบสนองของเซนเซอร์ g(x) ` +
+              `โดยกำหนดฟังก์ชัน g(x) = √(${p}x - ${q}) + ${v} บนเซตของจำนวนจริง`,
+            formulaText: `g(x) = √(${p}x - ${q}) + ${v}`,
+            prompt: "ข้อใดคือโดเมน (Dg) และเรนจ์ (Rg) ของฟังก์ชัน g ที่ถูกต้อง",
+            options: options,
+            correctIndex: correctIndex,
+            correctSummary: correctText,
+            explanation:
+              `1) หาโดเมน: จำนวนภายใต้เครื่องหมายกรณฑ์ที่สองต้องมากกว่าหรือเท่ากับศูนย์: ${p}x - ${q} ≥ 0 ⇒ ${p}x ≥ ${q} ⇒ x ≥ ${x0} ` +
+              `ดังนั้น Dg = [${x0}, ∞) ` +
+              `2) หาเรนจ์: เนื่องจาก √(${p}x - ${q}) ≥ 0 สำหรับทุก x ≥ ${x0} เมื่อบวก ${v} ทั้งสองข้างจะได้ ` +
+              `√(${p}x - ${q}) + ${v} ≥ ${v} ⇒ g(x) ≥ ${v} ดังนั้น Rg = [${v}, ∞)`
+          });
+        })();
+
+        /* -------------------------------------------------------------------
+           ข้อที่ 5: กรณีศึกษาวิเคราะห์ฟังก์ชันประกอบ (อัตนัย + ตาราง Rubric 4 ระดับ)
+           ------------------------------------------------------------------- */
+        (function buildQ5() {
+          const rng = createQuestionRng(studentNumber, 4);
+          const D = pickFrom(rng, [2, 3, 4, 5]);
+          const M = pickFrom(rng, [9, 10, 12, 14, 15, 16]);
+          const K = pickFrom(rng, [6, 8, 10, 12]);
+          const minDenom = M - D;
+          const minFrac = formatFractionString(K, minDenom);
+          const minDec = roundToTwo(K / minDenom);
+
+          questions.push({
+            id: 5,
+            type: "rubric-essay",
+            typeLabel: "กรณีศึกษาวิเคราะห์ + เกณฑ์ Rubric (20 คะแนน)",
+            signature: `${D}-${M}-${K}`,
+            scenario:
+              `สถานีตรวจวัดสภาพอากาศอัตโนมัติบนดอยสูง ใช้ฟังก์ชัน E(x) เพื่อประเมินดัชนีเสถียรภาพพลังงานของระบบ ณ ชั่วโมงการทำงานต่อเนื่องที่ x ` +
+              `กำหนดโดย E(x) = √(${M} - x) + ${K} / (x - ${D}) โดยในทางปฏิบัติสถานีจะเริ่มบันทึกข้อมูลตั้งแต่ชั่วโมงที่ x = 0 เป็นต้นไป`,
+            formulaText: `E(x) = √(${M} - x) + ${K} / (x - ${D})`,
+            prompt:
+              "จงวิเคราะห์และเขียนอธิบายคำตอบให้ครบ 3 ประเด็นต่อไปนี้:\n" +
+              "1) โดเมนทางพีชคณิตของฟังก์ชัน E และโดเมนภายใต้เงื่อนไขบริบทเวลาทำงาน (x ≥ 0)\n" +
+              "2) หากพิจารณาช่วงเวลาทำงาน x ∈ (" + D + ", " + M + "] ค่าต่ำสุดของฟังก์ชัน E(x) เท่ากับเท่าใด (ระบุเป็นเศษส่วนอย่างต่ำหรือทศนิยม 2 ตำแหน่ง ±0.01) และเกิดขึ้นที่ x เท่าใด\n" +
+              "3) อธิบายเหตุผลเชิงคณิตศาสตร์ว่าเหตุใดค่าฟังก์ชัน E(x) จึงมีค่าเพิ่มสูงขึ้นอย่างไม่มีขอบเขต (+∞) เมื่อ x เข้าใกล้ " + D + " ทางขวา (x → " + D + "⁺)",
+            placeholder:
+              "พิมพ์คำอธิบายการวิเคราะห์ของนักเรียนให้ครบทั้ง 3 ประเด็น...\n" +
+              "ประเด็นที่ 1 (โดเมน): ...\n" +
+              "ประเด็นที่ 2 (ค่าต่ำสุดและเรนจ์บนช่วงที่กำหนด): ...\n" +
+              "ประเด็นที่ 3 (เหตุผลพฤติกรรมเข้าใกล้จุดวิกฤต): ...",
+            referenceSolution:
+              `แนวคำตอบเทียบเคียง (สำหรับเลขที่ ${studentNumber}):\n` +
+              `1) การหาโดเมน:\n` +
+              `   • เงื่อนไขกรณฑ์ที่สอง: ${M} - x ≥ 0 ⇒ x ≤ ${M}\n` +
+              `   • เงื่อนไขตัวส่วนไม่เป็นศูนย์: x - ${D} ≠ 0 ⇒ x ≠ ${D}\n` +
+              `   • ดังนั้น โดเมนทางพีชคณิตคือ DE = (-∞, ${D}) ∪ (${D}, ${M}]\n` +
+              `   • เมื่อรวมเงื่อนไขบริบทเวลาทำงาน x ≥ 0 จะได้โดเมนในสถานการณ์คือ [0, ${D}) ∪ (${D}, ${M}]\n` +
+              `2) ค่าต่ำสุดและเรนจ์บนช่วง (${D}, ${M}]:\n` +
+              `   • บนช่วง (${D}, ${M}] ทั้งพจน์ √(${M} - x) และพจน์ ${K}/(x - ${D}) ต่างเป็นฟังก์ชันลดทั้งคู่\n` +
+              `   • ดังนั้น ค่าต่ำสุดของ E(x) บนช่วงนี้เกิดขึ้นที่ขอบขวาสุด x = ${M} โดยมีค่าเท่ากับ E(${M}) = √(${M} - ${M}) + ${K}/(${M} - ${D}) = ${minFrac} (หรือประมาณ ${minDec.toFixed(2)})\n` +
+              `   • เรนจ์ของ E บนช่วง (${D}, ${M}] คือ [${minFrac}, ∞)\n` +
+              `3) เหตุผลเมื่อ x → ${D}⁺:\n` +
+              `   • เมื่อ x เข้าใกล้ ${D} จากทางขวา (x > ${D}) ตัวส่วน (x - ${D}) จะเป็นจำนวนบวกที่มีค่าน้อยลงเข้าใกล้ 0 ส่งผลให้พจน์ ${K}/(x - ${D}) มีค่าเพิ่มมากขึ้นอย่างไม่มีขอบเขต (+∞) ในขณะที่ √(${M} - x) เข้าใกล้ค่าคงตัว √${minDenom} จึงทำให้ผลรวม E(x) → +∞ (ในทางปฏิบัติช่วงใกล้ x = ${D} เป็นจุดวิกฤตของระบบที่ควรหลีกเลี่ยง)`,
+            rubricLevels: [
+              {
+                level: 4,
+                score: 20,
+                title: "ระดับ 4: ดีเยี่ยม (20 คะแนน)",
+                domainCrit: `ระบุทั้งเงื่อนไข ${M} - x ≥ 0 และ x ≠ ${D} ได้ครบถ้วน เขียนทั้งโดเมนทางพีชคณิต (-∞, ${D}) ∪ (${D}, ${M}] และโดเมนบริบท [0, ${D}) ∪ (${D}, ${M}] ถูกต้องสมบูรณ์`,
+                rangeCrit: `หาค่าต่ำสุด E(${M}) = ${minFrac} (≈ ${minDec.toFixed(2)}) ได้ถูกต้อง พร้อมให้เหตุผลความเป็นฟังก์ชันลดบน (${D}, ${M}] และระบุเรนจ์ [${minFrac}, ∞) ชัดเจน`,
+                contextCrit: `อธิบายพฤติกรรม x → ${D}⁺ โดยเชื่อมโยงตัวส่วนเข้าใกล้ 0 ทางบวก ทำให้ค่าฟังก์ชันเข้าสู่ +∞ และแปลความหมายเชิงสถานการณ์ได้ชัดเจน`
+              },
+              {
+                level: 3,
+                score: 15,
+                title: "ระดับ 3: ดี (15 คะแนน)",
+                domainCrit: `ระบุเงื่อนไข x ≤ ${M} และ x ≠ ${D} ได้ถูกต้อง แต่อาจเขียนสัญลักษณ์ช่วงโดเมนบริบทตกหล่นเล็กน้อย`,
+                rangeCrit: `คำนวณค่าต่ำสุดที่ x = ${M} ได้ ${minFrac} ถูกต้อง แต่คำอธิบายเหตุผลความเป็นฟังก์ชันลดหรือช่วงเรนจ์ยังไม่สมบูรณ์`,
+                contextCrit: `อธิบายได้ถูกต้องว่าตัวส่วนเข้าใกล้ 0 ทำให้ค่าฟังก์ชันมีค่ามาก แต่ยังเชื่อมโยงบริบทสถานการณ์ไม่ชัดเจน`
+              },
+              {
+                level: 2,
+                score: 10,
+                title: "ระดับ 2: พอใช้ (10 คะแนน)",
+                domainCrit: `พิจารณาเงื่อนไขได้เพียงส่วนเดียว (เช่น ดูเฉพาะกรณฑ์ x ≤ ${M} หรือดูเฉพาะตัวส่วน x ≠ ${D})`,
+                rangeCrit: `แทนค่า x = ${M} ได้บางส่วน แต่คำนวณเศษส่วน/ทศนิยมคลาดเคลื่อนหรือไม่ระบุเรนจ์`,
+                contextCrit: `ระบุได้เพียงว่าห้ามหารด้วยศูนย์ แต่ไม่อธิบายแนวโน้มค่าฟังก์ชันเมื่อเข้าใกล้ ${D}`
+              },
+              {
+                level: 1,
+                score: 5,
+                title: "ระดับ 1: ต้องปรับปรุง (5 คะแนน)",
+                domainCrit: `ระบุเงื่อนไขโดเมนไม่ถูกต้องหรือสับสนระหว่างเครื่องหมายอสมการ`,
+                rangeCrit: `ไม่สามารถหาค่าต่ำสุดหรือเรนจ์บนช่วงที่กำหนดได้ถูกต้อง`,
+                contextCrit: `เขียนตอบสั้นเกินไป ไม่แสดงเหตุผลทางคณิตศาสตร์ที่สอดคล้องกับโจทย์`
+              }
+            ]
+          });
+        })();
+
+        return questions;
+      }
+
+      /* =====================================================================
+         3. APPLICATION STATE (IN-MEMORY FOR 100% SANDBOX COMPATIBILITY)
+         ===================================================================== */
+      const TOTAL_SECONDS = 10 * 60; // 10 minutes
+      const state = {
+        studentNumber: null,
+        questions: [],
+        currentIndex: 0,
+        answers: {}, // { 1: {a: "", b: ""}, 2: null, 3: {a: "", b: ""}, 4: null, 5: "" }
+        rubricScore: 0,
+        timerId: null,
+        secondsLeft: TOTAL_SECONDS,
+        submitted: false
+      };
+
+      /* =====================================================================
+         4. DOM REFERENCES & SAFE UI HELPERS
+         ===================================================================== */
+      const bannerArea = document.getElementById("bannerArea");
+      const bannerText = document.getElementById("bannerText");
+      const closeBannerBtn = document.getElementById("closeBannerBtn");
+
+      const startScreen = document.getElementById("startScreen");
+      const quizScreen = document.getElementById("quizScreen");
+      const resultScreen = document.getElementById("resultScreen");
+
+      const startForm = document.getElementById("startForm");
+      const studentNumberInput = document.getElementById("studentNumberInput");
+
+      const activeStudentBadge = document.getElementById("activeStudentBadge");
+      const timerDisplay = document.getElementById("timerDisplay");
+      const progressLabel = document.getElementById("progressLabel");
+      const answeredCountLabel = document.getElementById("answeredCountLabel");
+      const progressFill = document.getElementById("progressFill");
+      const navPills = document.getElementById("navPills");
+      const questionCard = document.getElementById("questionCard");
+
+      const resultStudentLabel = document.getElementById("resultStudentLabel");
+      const totalScoreDisplay = document.getElementById("totalScoreDisplay");
+      const scoreBreakdownDisplay = document.getElementById("scoreBreakdownDisplay");
+      const reviewContainer = document.getElementById("reviewContainer");
+
+      const openTeacherBtn = document.getElementById("openTeacherBtn");
+      const closeTeacherBtn = document.getElementById("closeTeacherBtn");
+      const teacherModal = document.getElementById("teacherModal");
+      const teacherStudentInput = document.getElementById("teacherStudentInput");
+      const teacherPrevStudent = document.getElementById("teacherPrevStudent");
+      const teacherNextStudent = document.getElementById("teacherNextStudent");
+      const uniquenessBox = document.getElementById("uniquenessBox");
+      const teacherPreviewContainer = document.getElementById("teacherPreviewContainer");
+
+      function showBanner(message, type) {
+        bannerArea.className = "banner show " + (type || "info");
+        bannerText.textContent = message;
+      }
+
+      function hideBanner() {
+        bannerArea.className = "banner";
+        bannerText.textContent = "";
+      }
+
+      closeBannerBtn.addEventListener("click", hideBanner);
+
+      function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined && text !== null) node.textContent = text;
+        return node;
+      }
+
+      /* =====================================================================
+         5. TIMER & PROGRESS MANAGEMENT
+         ===================================================================== */
+      function formatTime(secs) {
+        const m = Math.floor(secs / 60);
+        const s = secs % 60;
+        return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+      }
+
+      function stopTimer() {
+        if (state.timerId !== null) {
+          clearInterval(state.timerId);
+          state.timerId = null;
+        }
+      }
+
+      function startTimer() {
+        stopTimer();
+        state.secondsLeft = TOTAL_SECONDS;
+        timerDisplay.classList.remove("urgent");
+        timerDisplay.textContent = "เวลาคงเหลือ " + formatTime(state.secondsLeft);
+
+        state.timerId = setInterval(function () {
+          state.secondsLeft -= 1;
+          if (state.secondsLeft <= 60) {
+            timerDisplay.classList.add("urgent");
+          }
+          if (state.secondsLeft === 60) {
+            showBanner("เหลือเวลาทำกิจกรรมอีก 1 นาที กรุณาตรวจสอบคำตอบของคุณ", "warning");
+          }
+          if (state.secondsLeft <= 0) {
+            state.secondsLeft = 0;
+            timerDisplay.textContent = "เวลาคงเหลือ 00:00";
+            stopTimer();
+            showBanner("หมดเวลา 10 นาทีแล้ว ระบบได้ส่งคำตอบของคุณโดยอัตโนมัติ", "info");
+            submitAssessment();
+            return;
+          }
+          timerDisplay.textContent = "เวลาคงเหลือ " + formatTime(state.secondsLeft);
+        }, 1000);
+      }
+
+      function isQuestionAnswered(q) {
+        const ans = state.answers[q.id];
+        if (q.type === "dual-numeric") {
+          return ans && String(ans.a).trim() !== "" && String(ans.b).trim() !== "";
+        }
+        if (q.type === "mcq") {
+          return ans !== null && ans !== undefined;
+        }
+        if (q.type === "rubric-essay") {
+          return typeof ans === "string" && ans.trim().length > 0;
+        }
+        return false;
+      }
+
+      function updateStatusHeader() {
+        const total = state.questions.length;
+        const curr = state.currentIndex + 1;
+        let answeredCount = 0;
+        state.questions.forEach((q) => {
+          if (isQuestionAnswered(q)) answeredCount += 1;
+        });
+
+        progressLabel.textContent = `ข้อที่ ${curr} จาก ${total}`;
+        answeredCountLabel.textContent = `ตอบแล้ว ${answeredCount} / ${total} ข้อ`;
+        progressFill.style.width = `${(curr / total) * 100}%`;
+
+        navPills.textContent = "";
+        state.questions.forEach((q, idx) => {
+          const pill = el("button", "nav-pill", `ข้อ ${q.id}`);
+          pill.type = "button";
+          if (idx === state.currentIndex) pill.classList.add("active");
+          if (isQuestionAnswered(q)) pill.classList.add("answered");
+          pill.addEventListener("click", function () {
+            state.currentIndex = idx;
+            renderCurrentQuestion();
+          });
+          navPills.appendChild(pill);
+        });
+      }
+
+      /* =====================================================================
+         6. RENDER ACTIVE QUESTION
+         ===================================================================== */
+      function renderCurrentQuestion() {
+        updateStatusHeader();
+        const q = state.questions[state.currentIndex];
+        questionCard.textContent = "";
+
+        // Header
+        const header = el("div", "q-header");
+        header.appendChild(el("div", "q-number", `ข้อที่ ${q.id} จาก 5`));
+        header.appendChild(el("div", "q-type-tag", q.typeLabel));
+        questionCard.appendChild(header);
+
+        // Scenario Box
+        const scenBox = el("div", "scenario-box");
+        scenBox.appendChild(el("div", "scenario-label", "สถานการณ์จำลอง"));
+        scenBox.appendChild(el("p", "", q.scenario));
+        if (q.formulaText) {
+          scenBox.appendChild(el("div", "math-display", q.formulaText));
+        }
+        questionCard.appendChild(scenBox);
+
+        // Prompt
+        const promptEl = el("div", "prompt-box");
+        promptEl.style.whiteSpace = "pre-line";
+        promptEl.textContent = q.prompt;
+        questionCard.appendChild(promptEl);
+
+        // Input Area by Type
+        if (q.type === "dual-numeric") {
+          const grid = el("div", "dual-input-grid");
+          const currentAns = state.answers[q.id] || { a: "", b: "" };
+
+          q.fields.forEach((f) => {
+            const card = el("div", "input-card");
+            const inputId = `q_${q.id}_${f.key}`;
+            const label = el("label", "", f.label);
+            label.setAttribute("for", inputId);
+
+            const input = el("input", "number-input");
+            input.type = "number";
+            input.step = "any";
+            input.inputMode = "decimal";
+            input.id = inputId;
+            input.placeholder = f.placeholder;
+            input.value = currentAns[f.key] !== undefined ? currentAns[f.key] : "";
+
+            input.addEventListener("input", function () {
+              state.answers[q.id][f.key] = input.value;
+              updateStatusHeader();
+            });
+
+            card.appendChild(label);
+            card.appendChild(input);
+            if (f.unit) {
+              card.appendChild(el("div", "input-hint", `หน่วย: ${f.unit}`));
+            }
+            grid.appendChild(card);
+          });
+
+          questionCard.appendChild(grid);
+        } else if (q.type === "mcq") {
+          const list = el("div", "options-list");
+          const letters = ["ก.", "ข.", "ค.", "ง."];
+          const selectedIdx = state.answers[q.id];
+
+          q.options.forEach((opt, idx) => {
+            const item = el("label", "option-item");
+            if (selectedIdx === idx) item.classList.add("selected");
+
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = `mcq_${q.id}`;
+            radio.checked = selectedIdx === idx;
+
+            radio.addEventListener("change", function () {
+              state.answers[q.id] = idx;
+              renderCurrentQuestion();
+            });
+
+            item.appendChild(radio);
+            item.appendChild(el("span", "option-letter", letters[idx]));
+            item.appendChild(el("span", "", opt.text));
+            list.appendChild(item);
+          });
+
+          questionCard.appendChild(list);
+        } else if (q.type === "rubric-essay") {
+          const textarea = el("textarea", "textarea-input");
+          textarea.placeholder = q.placeholder;
+          textarea.value = state.answers[q.id] || "";
+          textarea.addEventListener("input", function () {
+            state.answers[q.id] = textarea.value;
+            updateStatusHeader();
+          });
+          questionCard.appendChild(textarea);
+          questionCard.appendChild(
+            el(
+              "div",
+              "input-hint",
+              "ข้อนี้เป็นข้อวิเคราะห์สถานการณ์ หลังส่งคำตอบระบบจะแสดงแนวคำตอบเทียบเคียงเฉพาะเลขที่ของคุณ พร้อมตารางเกณฑ์ประเมิน Rubric 4 ระดับ"
+            )
+          );
+        }
+
+        // Navigation & Submit Controls
+        const actions = el("div", "quiz-actions");
+
+        const prevBtn = el("button", "btn btn-secondary", "← ข้อก่อนหน้า");
+        prevBtn.type = "button";
+        prevBtn.disabled = state.currentIndex === 0;
+        prevBtn.addEventListener("click", function () {
+          if (state.currentIndex > 0) {
+            state.currentIndex -= 1;
+            renderCurrentQuestion();
+          }
+        });
+
+        const rightGroup = el("div", "");
+        rightGroup.style.display = "flex";
+        rightGroup.style.flexWrap = "wrap";
+        rightGroup.style.gap = "0.6rem";
+
+        if (state.currentIndex < state.questions.length - 1) {
+          const nextBtn = el("button", "btn btn-primary", "ข้อถัดไป →");
+          nextBtn.type = "button";
+          nextBtn.addEventListener("click", function () {
+            state.currentIndex += 1;
+            renderCurrentQuestion();
+          });
+          rightGroup.appendChild(nextBtn);
+        }
+
+        const submitBtn = el("button", "btn btn-success", "ตรวจ/ส่งคำตอบ");
+        submitBtn.type = "button";
+        rightGroup.appendChild(submitBtn);
+
+        actions.appendChild(prevBtn);
+        actions.appendChild(rightGroup);
+        questionCard.appendChild(actions);
+
+        // Inline Confirmation Panel (Replaces window.confirm)
+        const confirmBox = el("div", "inline-confirm");
+        const confirmMsg = el("div", "");
+        confirmMsg.style.fontWeight = "600";
+        const confirmBtns = el("div", "inline-confirm-actions");
+
+        const confirmYes = el("button", "btn btn-success", "ยืนยันส่งคำตอบตอนนี้");
+        confirmYes.type = "button";
+        confirmYes.addEventListener("click", function () {
+          submitAssessment();
+        });
+
+        const confirmNo = el("button", "btn btn-secondary", "กลับไปทำต่อ");
+        confirmNo.type = "button";
+        confirmNo.addEventListener("click", function () {
+          confirmBox.classList.remove("show");
+        });
+
+        confirmBtns.appendChild(confirmYes);
+        confirmBtns.appendChild(confirmNo);
+        confirmBox.appendChild(confirmMsg);
+        confirmBox.appendChild(confirmBtns);
+        questionCard.appendChild(confirmBox);
+
+        submitBtn.addEventListener("click", function () {
+          const unanswered = state.questions
+            .filter((item) => !isQuestionAnswered(item))
+            .map((item) => `ข้อ ${item.id}`);
+
+          if (unanswered.length > 0) {
+            confirmMsg.textContent = `คุณยังไม่ได้ตอบ ${unanswered.join(", ")} — ต้องการยืนยันส่งคำตอบทั้งหมดเลยหรือไม่?`;
+            confirmBox.classList.add("show");
+          } else {
+            submitAssessment();
+          }
+        });
+      }
+
+      /* =====================================================================
+         7. GRADING & RESULTS VIEW (WITH INTERACTIVE RUBRIC)
+         ===================================================================== */
+      function evaluateAutoQuestions() {
+        let autoScore = 0;
+        const details = [];
+
+        state.questions.forEach((q) => {
+          if (q.type === "dual-numeric") {
+            const ans = state.answers[q.id] || { a: "", b: "" };
+            const valA = String(ans.a).trim() === "" ? NaN : Number(ans.a);
+            const valB = String(ans.b).trim() === "" ? NaN : Number(ans.b);
+            const tol = q.tolerance || 0;
+
+            const okA = !Number.isNaN(valA) && Math.abs(valA - q.fields[0].correct) <= tol;
+            const okB = !Number.isNaN(valB) && Math.abs(valB - q.fields[1].correct) <= tol;
+            const pts = (okA ? 10 : 0) + (okB ? 10 : 0);
+            autoScore += pts;
+
+            const userText =
+              `ช่องที่ 1: ${Number.isNaN(valA) ? "(ไม่ได้ตอบ)" : valA} | ` +
+              `ช่องที่ 2: ${Number.isNaN(valB) ? "(ไม่ได้ตอบ)" : valB}`;
+
+            details.push({
+              q: q,
+              points: pts,
+              maxPoints: 20,
+              isFullCorrect: pts === 20,
+              userAnswerText: userText
+            });
+          } else if (q.type === "mcq") {
+            const idx = state.answers[q.id];
+            const isCorrect = idx === q.correctIndex;
+            const pts = isCorrect ? 20 : 0;
+            autoScore += pts;
+            const letters = ["ก.", "ข.", "ค.", "ง."];
+            const userText =
+              idx !== null && idx !== undefined
+                ? `${letters[idx]} ${q.options[idx].text}`
+                : "(ไม่ได้เลือกคำตอบ)";
+
+            details.push({
+              q: q,
+              points: pts,
+              maxPoints: 20,
+              isFullCorrect: isCorrect,
+              userAnswerText: userText
+            });
+          }
+        });
+
+        return { autoScore, details };
+      }
+
+      function updateTotalScoreBanner(autoScore) {
+        const total = autoScore + state.rubricScore;
+        totalScoreDisplay.textContent = `${total} / 100 คะแนน`;
+        scoreBreakdownDisplay.textContent =
+          `คะแนนอัตโนมัติ (ข้อ 1–4): ${autoScore} / 80 คะแนน  |  คะแนนประเมินเกณฑ์ Rubric (ข้อ 5): ${state.rubricScore} / 20 คะแนน`;
+      }
+
+      function submitAssessment() {
+        stopTimer();
+        state.submitted = true;
+        hideBanner();
+
+        const { autoScore, details } = evaluateAutoQuestions();
+        const q5 = state.questions[4];
+        const essayText = (state.answers[q5.id] || "").trim();
+        // Default rubric score: 0 if blank, or Level 3 (15) baseline until student/teacher selects exact level
+        state.rubricScore = essayText.length > 0 ? 15 : 0;
+
+        quizScreen.classList.add("hidden");
+        resultScreen.classList.remove("hidden");
+        resultStudentLabel.textContent = `ผลการประเมินของนักเรียนเลขที่ ${state.studentNumber}`;
+        updateTotalScoreBanner(autoScore);
+
+        reviewContainer.textContent = "";
+
+        // Render Q1 - Q4 Review Cards
+        details.forEach((item) => {
+          const q = item.q;
+          const card = el(
+            "div",
+            "review-card " + (item.isFullCorrect ? "correct" : "incorrect")
+          );
+
+          const head = el("div", "q-header");
+          head.appendChild(el("div", "q-number", `ข้อที่ ${q.id}: ${q.typeLabel}`));
+          const badge = el(
+            "span",
+            "badge-status " + (item.isFullCorrect ? "badge-correct" : "badge-incorrect"),
+            item.isFullCorrect
+              ? `ถูกต้อง (${item.points}/${item.maxPoints} คะแนน)`
+              : `ได้ ${item.points}/${item.maxPoints} คะแนน`
+          );
+          head.appendChild(badge);
+          card.appendChild(head);
+
+          const scen = el("p", "");
+          scen.style.fontSize = "0.93rem";
+          scen.style.color = "var(--text-muted)";
+          scen.textContent = q.scenario;
+          card.appendChild(scen);
+
+          const compare = el("div", "answer-compare");
+          const userBox = el("div", "compare-box");
+          userBox.appendChild(el("strong", "", "คำตอบของคุณ: "));
+          userBox.appendChild(el("span", "", item.userAnswerText));
+
+          const corrBox = el("div", "compare-box");
+          corrBox.appendChild(el("strong", "", "เฉลยที่ถูกต้อง: "));
+          corrBox.appendChild(el("span", "", q.correctSummary));
+
+          compare.appendChild(userBox);
+          compare.appendChild(corrBox);
+          card.appendChild(compare);
+
+          const expBox = el("div", "explanation-box");
+          expBox.appendChild(el("div", "explanation-title", "คำอธิบายเหตุผลและวิธีคิด"));
+          expBox.appendChild(el("div", "", q.explanation));
+          card.appendChild(expBox);
+
+          reviewContainer.appendChild(card);
+        });
+
+        // Render Q5 Case Study + Rubric Table + Reference Answer
+        const q5Card = el("div", "review-card rubric-mode");
+        const q5Head = el("div", "q-header");
+        q5Head.appendChild(el("div", "q-number", `ข้อที่ 5: ${q5.typeLabel}`));
+        const q5Badge = el(
+          "span",
+          "badge-status badge-rubric",
+          `ประเมินตามเกณฑ์ Rubric (${state.rubricScore} / 20 คะแนน)`
+        );
+        q5Head.appendChild(q5Badge);
+        q5Card.appendChild(q5Head);
+
+        const userEssayLabel = el("strong", "", "คำตอบวิเคราะห์ของนักเรียน:");
+        q5Card.appendChild(userEssayLabel);
+        const essayPreview = el(
+          "div",
+          "student-essay-preview",
+          essayText.length > 0 ? essayText : "(นักเรียนไม่ได้พิมพ์คำตอบในข้อนี้)"
+        );
+        q5Card.appendChild(essayPreview);
+
+        // Reference Solution
+        const refBox = el("div", "explanation-box");
+        refBox.appendChild(el("div", "explanation-title", "แนวคำตอบเทียบเคียง (คำนวณตามเลขที่ " + state.studentNumber + ")"));
+        const refText = el("div", "", q5.referenceSolution);
+        refText.style.whiteSpace = "pre-line";
+        refBox.appendChild(refText);
+        q5Card.appendChild(refBox);
+
+        // Interactive Rubric Level Selector
+        const selectorWrap = el("div", "rubric-selector");
+        selectorWrap.appendChild(el("strong", "", "เลือกระดับคุณภาพตามตาราง Rubric ด้านล่างเพื่อสรุปคะแนนข้อ 5: "));
+
+        const levelButtons = [];
+        const zeroBtn = el("button", "rubric-btn", "ไม่ได้ตอบ (0 คะแนน)");
+        zeroBtn.type = "button";
+        if (state.rubricScore === 0) zeroBtn.classList.add("active");
+        zeroBtn.addEventListener("click", function () {
+          state.rubricScore = 0;
+          q5Badge.textContent = "ประเมินตามเกณฑ์ Rubric (0 / 20 คะแนน)";
+          updateTotalScoreBanner(autoScore);
+          levelButtons.forEach((b) => b.classList.remove("active"));
+          zeroBtn.classList.add("active");
+        });
+        levelButtons.push(zeroBtn);
+        selectorWrap.appendChild(zeroBtn);
+
+        q5.rubricLevels.slice().reverse().forEach((lvl) => {
+          const btn = el("button", "rubric-btn", `ระดับ ${lvl.level} (${lvl.score} คะแนน)`);
+          btn.type = "button";
+          if (state.rubricScore === lvl.score) btn.classList.add("active");
+          btn.addEventListener("click", function () {
+            state.rubricScore = lvl.score;
+            q5Badge.textContent = `ประเมินตามเกณฑ์ Rubric (${lvl.score} / 20 คะแนน)`;
+            updateTotalScoreBanner(autoScore);
+            levelButtons.forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+          });
+          levelButtons.push(btn);
+          selectorWrap.appendChild(btn);
+        });
+        q5Card.appendChild(selectorWrap);
+
+        // Rubric 4-Level Table
+        q5Card.appendChild(buildRubricTableElement(q5.rubricLevels));
+        reviewContainer.appendChild(q5Card);
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function buildRubricTableElement(rubricLevels) {
+        const scroll = el("div", "table-scroll");
+        const table = el("table", "rubric-table");
+
+        const thead = document.createElement("thead");
+        const headRow = document.createElement("tr");
+        [
+          "ระดับคุณภาพ / คะแนน",
+          "เกณฑ์ที่ 1: การหาโดเมนและเงื่อนไขห้าม",
+          "เกณฑ์ที่ 2: การวิเคราะห์เรนจ์และค่าต่ำสุด",
+          "เกณฑ์ที่ 3: การให้เหตุผลเชิงสถานการณ์"
+        ].forEach((h) => {
+          headRow.appendChild(el("th", "", h));
+        });
+        thead.appendChild(headRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        rubricLevels.forEach((lvl) => {
+          const tr = document.createElement("tr");
+          const tdTitle = el("td", "", "");
+          tdTitle.appendChild(el("strong", "", lvl.title));
+          tr.appendChild(tdTitle);
+          tr.appendChild(el("td", "", lvl.domainCrit));
+          tr.appendChild(el("td", "", lvl.rangeCrit));
+          tr.appendChild(el("td", "", lvl.contextCrit));
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        scroll.appendChild(table);
+        return scroll;
+      }
+
+      /* =====================================================================
+         8. SESSION START / RETRY / RESET FLOWS
+         ===================================================================== */
+      function beginSessionForStudent(num) {
+        state.studentNumber = num;
+        state.questions = generateAssessmentForStudent(num);
+        state.currentIndex = 0;
+        state.submitted = false;
+        state.rubricScore = 0;
+        state.answers = {
+          1: { a: "", b: "" },
+          2: null,
+          3: { a: "", b: "" },
+          4: null,
+          5: ""
+        };
+
+        hideBanner();
+        startScreen.classList.add("hidden");
+        resultScreen.classList.add("hidden");
+        quizScreen.classList.remove("hidden");
+
+        activeStudentBadge.textContent = `นักเรียนเลขที่ ${num}`;
+        renderCurrentQuestion();
+        startTimer();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      startForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const raw = studentNumberInput.value.trim();
+        const num = Number(raw);
+        if (raw === "" || !Number.isInteger(num) || num < 1 || num > 40) {
+          showBanner("กรุณากรอกเลขที่นักเรียนเป็นจำนวนเต็มระหว่าง 1 ถึง 40 เท่านั้น", "danger");
+          studentNumberInput.focus();
+          return;
+        }
+        beginSessionForStudent(num);
+      });
+
+      document.getElementById("retrySameBtn").addEventListener("click", function () {
+        if (state.studentNumber !== null) {
+          beginSessionForStudent(state.studentNumber);
+        }
+      });
+
+      document.getElementById("changeStudentBtn").addEventListener("click", function () {
+        stopTimer();
+        hideBanner();
+        quizScreen.classList.add("hidden");
+        resultScreen.classList.add("hidden");
+        startScreen.classList.remove("hidden");
+        studentNumberInput.value = "";
+        studentNumberInput.focus();
+      });
+
+      /* =====================================================================
+         9. TEACHER MODE (INSPECTOR & COLLISION ANALYTICS FOR 1-40)
+         ===================================================================== */
+      function computeUniquenessStats() {
+        const fullSignatures = new Set();
+        const perQuestionSets = [new Set(), new Set(), new Set(), new Set(), new Set()];
+
+        for (let s = 1; s <= 40; s++) {
+          const qs = generateAssessmentForStudent(s);
+          const sigs = qs.map((q) => q.signature);
+          fullSignatures.add(sigs.join("|"));
+          sigs.forEach((sig, idx) => perQuestionSets[idx].add(sig));
+        }
+
+        const uniqueFull = fullSignatures.size;
+        const duplicateRate = (((40 - uniqueFull) / 40) * 100).toFixed(1);
+
+        uniquenessBox.textContent = "";
+        const title = el("strong", "", "รายงานอัตราความซ้ำของชุดโจทย์ (เลขที่ 1–40):");
+        title.style.display = "block";
+        title.style.color = "var(--primary)";
+        title.style.marginBottom = "0.25rem";
+
+        const line1 = el(
+          "div",
+          "",
+          `• ชุดโจทย์รวมทั้ง 5 ข้อไม่ซ้ำกัน: ${uniqueFull} / 40 ชุด (อัตราความซ้ำของชุดข้อสอบ = ${duplicateRate}%)`
+        );
+        const line2 = el(
+          "div",
+          "",
+          `• จำนวนรูปแบบตัวเลขที่แตกต่างกันรายข้อ: ข้อ 1 (${perQuestionSets[0].size} แบบ), ข้อ 2 (${perQuestionSets[1].size} แบบ), ข้อ 3 (${perQuestionSets[2].size} แบบ), ข้อ 4 (${perQuestionSets[3].size} แบบ), ข้อ 5 (${perQuestionSets[4].size} แบบ)`
+        );
+
+        uniquenessBox.appendChild(title);
+        uniquenessBox.appendChild(line1);
+        uniquenessBox.appendChild(line2);
+      }
+
+      function renderTeacherPreview(studentNum) {
+        const num = Math.max(1, Math.min(40, Math.floor(Number(studentNum) || 1)));
+        teacherStudentInput.value = String(num);
+        const qs = generateAssessmentForStudent(num);
+
+        teacherPreviewContainer.textContent = "";
+
+        qs.forEach((q) => {
+          const card = el("div", "review-card");
+          const head = el("div", "q-header");
+          head.appendChild(el("div", "q-number", `เลขที่ ${num} — ข้อที่ ${q.id} (${q.typeLabel})`));
+          card.appendChild(head);
+
+          const scen = el("p", "", q.scenario);
+          scen.style.marginBottom = "0.5rem";
+          card.appendChild(scen);
+
+          if (q.formulaText) {
+            card.appendChild(el("div", "math-display", q.formulaText));
+          }
+
+          const prompt = el("div", "prompt-box", q.prompt);
+          prompt.style.whiteSpace = "pre-line";
+          prompt.style.marginTop = "0.5rem";
+          card.appendChild(prompt);
+
+          if (q.type === "mcq") {
+            const letters = ["ก.", "ข.", "ค.", "ง."];
+            const ul = el("div", "");
+            ul.style.marginBottom = "0.65rem";
+            q.options.forEach((opt, i) => {
+              const row = el(
+                "div",
+                "",
+                `${letters[i]} ${opt.text} ${opt.isCorrect ? " [คำตอบที่ถูกต้อง]" : ""}`
+              );
+              if (opt.isCorrect) {
+                row.style.color = "var(--success)";
+                row.style.fontWeight = "700";
+              }
+              ul.appendChild(row);
+            });
+            card.appendChild(ul);
+          }
+
+          const ansBox = el("div", "explanation-box");
+          if (q.type === "rubric-essay") {
+            ansBox.appendChild(el("div", "explanation-title", "แนวคำตอบเทียบเคียงและตารางเกณฑ์ Rubric"));
+            const ref = el("div", "", q.referenceSolution);
+            ref.style.whiteSpace = "pre-line";
+            ansBox.appendChild(ref);
+            ansBox.appendChild(buildRubricTableElement(q.rubricLevels));
+          } else {
+            ansBox.appendChild(el("div", "explanation-title", `เฉลย: ${q.correctSummary}`));
+            ansBox.appendChild(el("div", "", `คำอธิบาย: ${q.explanation}`));
+          }
+          card.appendChild(ansBox);
+
+          teacherPreviewContainer.appendChild(card);
+        });
+      }
+
+      openTeacherBtn.addEventListener("click", function () {
+        computeUniquenessStats();
+        const defaultNum = state.studentNumber || 1;
+        renderTeacherPreview(defaultNum);
+        teacherModal.classList.add("open");
+      });
+
+      closeTeacherBtn.addEventListener("click", function () {
+        teacherModal.classList.remove("open");
+      });
+
+      teacherModal.addEventListener("click", function (e) {
+        if (e.target === teacherModal) {
+          teacherModal.classList.remove("open");
+        }
+      });
+
+      teacherStudentInput.addEventListener("input", function () {
+        const val = Number(teacherStudentInput.value);
+        if (Number.isInteger(val) && val >= 1 && val <= 40) {
+          renderTeacherPreview(val);
+        }
+      });
+
+      teacherStudentInput.addEventListener("change", function () {
+        renderTeacherPreview(teacherStudentInput.value);
+      });
+
+      teacherPrevStudent.addEventListener("click", function () {
+        const curr = Number(teacherStudentInput.value) || 1;
+        renderTeacherPreview(curr > 1 ? curr - 1 : 40);
+      });
+
+      teacherNextStudent.addEventListener("click", function () {
+        const curr = Number(teacherStudentInput.value) || 1;
+        renderTeacherPreview(curr < 40 ? curr + 1 : 1);
+      });
+    })();
+  </script>
+</body>
+</html>
